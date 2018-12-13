@@ -1,0 +1,26 @@
+{
+    "author": "Unscrambl",
+    "dependencies": {
+        "node-int64": "0.4.0"
+    },
+    "description": "JSON.parse / JSON.stringify with int64 support",
+    "devDependencies": {
+        "chai": "4.1.2",
+        "mocha": "5.1.1"
+    },
+    "keywords": [
+        "JSON",
+        "int64",
+        "parse",
+        "json",
+        "stringify"
+    ],
+    "license": "Apache-2.0",
+    "main": "index.js",
+    "name": "json-int64",
+    "repository": "github:unscrambl/json-int64",
+    "scripts": {
+        "test": "./node_modules/mocha/bin/mocha -R spec --check-leaks test/*.spec.js"
+    },
+    "version": "0.0.1"
+}
