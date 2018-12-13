@@ -11,8 +11,8 @@ var JSONInt64 = require('json-int64');
 
 var json = '{ "value" : 9223372036854775807, "v2": 123 }';
 console.log('Input:%s\n', json);
-var parsedValue = JSONLong.parse(json);
-console.log('Parsed long value: ', JSONInt64.util.toDecimalString(parsedValue.value));
+var parsedValue = JSONInt64.parse(json);
+console.log('Parsed int64 value: ', JSONInt64.util.toDecimalString(parsedValue.value));
 console.log('Value after performing stringify operation on JS object:', JSONLong.stringify(parsedValue));
 ```
 
@@ -20,7 +20,7 @@ Output:
 
 ```
 Input: { "value" : 9223372036854775807, "v2": 123 }
-Parsed long value:   9223372036854775807
+Parsed int64 value:   9223372036854775807
 Value after performing stringify operation on JS object: {"value":9223372036854775807,"v2":123}
 ```
 
