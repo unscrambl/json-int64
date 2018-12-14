@@ -1,0 +1,4 @@
+This project uses source code based on the Thrift project under the terms of Apache 2.0 license.
+
+Specifically the following:
+    "src/int64_util.js": Based on https://github.com/apache/thrift/blob/master/lib/nodejs/lib/thrift/int64_util.js
