@@ -18,7 +18,7 @@ Assertion.addMethod('equalInt64', function (other)
 
 describe("Tests the Int64 support", function ()
 {
-    var input = '{"int64MaxValue": 9223372036854775807, "int64MinValue": -9223372036854775807, "number": 123}';
+    var input = '{"int64MaxValue":9223372036854775807,"int64MinValue":-9223372036854775807,"number":123}';
 
     it("tests the JSON parse and stringify functionality", function (done)
     {
