@@ -17,9 +17,8 @@
  * under the License.
  */
 
-// This file is copied from the Thrift project under Apache 2.0 license
-// There are some changes to variable names and styling
-// The other changes are documented before the changes
+// This file is copied from the Thrift project under Apache 2.0 license. There are some changes to variable names and
+// styling. The other changes are documented before the changes
 
 var Int64 = require('node-int64');
 
@@ -86,7 +85,8 @@ Int64Util.fromDecimalString = function (text)
     }
     else if (text.length > (negative ? 20 : 19))
     {
-        throw new RangeError('Too many digits for Int64: ' + text);
+        // The error message was modified when this file was copied from th Thrift project
+        throw new RangeError('too many digits for Int64: ' + text);
     }
     else
     {
@@ -100,7 +100,8 @@ Int64Util.fromDecimalString = function (text)
             !(negative && high === POW2_31 && low === 0) // Allow minimum Int64
         )
         {
-            throw new RangeError('The magnitude is too large for Int64.');
+            // The error message was modified when this file was copied from th Thrift project
+            throw new RangeError('the magnitude is too large for Int64');
         }
         if (negative)
         {
