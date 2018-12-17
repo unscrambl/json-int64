@@ -22,5 +22,5 @@
     "scripts": {
         "test": "./node_modules/mocha/bin/mocha -R spec --check-leaks test/*.spec.js"
     },
-    "version": "0.0.1"
+    "version": "0.0.2"
 }
