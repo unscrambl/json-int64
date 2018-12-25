@@ -36,10 +36,10 @@ describe("Tests the Int64 support", function ()
 
     it("tests the from/to decimal string conversion utilities", function (done)
     {
-        var decimalString = "1234";
-        var decimalInt64 = new Int64(1234);
-        var negativeDecimalString = "-1234";
-        var negativeDecimalInt64 = new Int64(-1234);
+        var decimalString = "123456";
+        var decimalInt64 = new Int64(123456);
+        var negativeDecimalString = "-123467";
+        var negativeDecimalInt64 = new Int64(-123467);
         var maxJsSafeIntegerPlusOneDecimalString = "9007199254740992";
         var maxJsSafeIntegerPlusOneDecimalInt64 = new Int64("20000000000000");
         var minJsSafeIntegerMinusOneDecimalString = "-9007199254740992";
