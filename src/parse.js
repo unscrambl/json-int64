@@ -90,16 +90,16 @@ var json_parse = function ()
                     white();
                 }
             }
-            error("Bad array");
+            error("bad array");
         },
 
-        error = function (m)
+        error = function (message)
         {
             // Call error when something is wrong.
 
             throw {
                 at: at,
-                message: m,
+                message: message,
                 name: 'SyntaxError',
                 text: text
             };
@@ -111,7 +111,7 @@ var json_parse = function ()
 
             if (c && c !== ch)
             {
-                error("Expected '" + c + "' instead of '" + ch + "'");
+                error("expected '" + c + "' instead of '" + ch + "'");
             }
 
             // Get the next character. When there are no more characters, return the empty string.
@@ -166,7 +166,7 @@ var json_parse = function ()
             number = +string;
             if (!isFinite(number))
             {
-                error("Bad number");
+                error("bad number");
             }
             else
             {
@@ -203,7 +203,7 @@ var json_parse = function ()
                     next(':');
                     if (Object.hasOwnProperty.call(object, key))
                     {
-                        error('Duplicate key "' + key + '"');
+                        error('duplicate key "' + key + '"');
                     }
                     object[key] = value();
                     white();
@@ -216,7 +216,7 @@ var json_parse = function ()
                     white();
                 }
             }
-            error("Bad object");
+            error("bad object");
         },
 
         string = function ()
@@ -271,7 +271,7 @@ var json_parse = function ()
                     }
                 }
             }
-            error("Bad string");
+            error("bad string");
         },
 
         value, // Place holder for the value function.
@@ -312,7 +312,7 @@ var json_parse = function ()
                 next('l');
                 return null;
             }
-            error("Unexpected '" + ch + "'");
+            error("unexpected '" + ch + "'");
         };
 
     value = function ()
@@ -348,7 +348,7 @@ var json_parse = function ()
         white();
         if (ch)
         {
-            error("Syntax error");
+            error("syntax error");
         }
 
         // If there is a reviver function, we recursively walk the new structure, passing each name/value pair to the
