@@ -34,22 +34,22 @@ var BYTE_3 = 3;
 var BYTE_2 = 2;
 var BYTE_1 = 1;
 
-var MAX_NUMBER_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE = 15;
-var NUMBER_OF_LEAST_SIGNIFICANT_DIGITS = 11;
+var MAX_NUM_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE = 15;
+var NUM_OF_LEAST_SIGNIFICANT_DIGITS = 11;
 
+var POW10_11 = Math.pow(10, NUM_OF_LEAST_SIGNIFICANT_DIGITS);
+var POW10_15 = Math.pow(10, MAX_NUM_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE);
 var POW2_24 = Math.pow(2, 24);
 var POW2_31 = Math.pow(2, 31);
 var POW2_32 = Math.pow(2, 32);
 var POW2_48 = Math.pow(2, 48);
-var POW10_11 = Math.pow(10, NUMBER_OF_LEAST_SIGNIFICANT_DIGITS);
-var POW10_15 = Math.pow(10, MAX_NUMBER_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE);
-var POW2_48_OVER_POW10_11 = Math.floor(POW2_48 / POW10_11);
-var POW2_48_REMAINDER_POW10_11 = Math.floor(POW2_48 % POW10_11);
 var POW10_15_OVER_POW2_32 = Math.floor(POW10_15 / POW2_32);
 var POW10_15_REMAINDER_POW2_32 = Math.floor(POW10_15 % POW2_32);
+var POW2_48_OVER_POW10_11 = Math.floor(POW2_48 / POW10_11);
+var POW2_48_REMAINDER_POW10_11 = Math.floor(POW2_48 % POW10_11);
 
-var FOUR_BYTES_BITMASK = 0xffffffff;
-var FOUR_BYTES_HIGH_1_BITMASK = 0x80000000;
+var FOUR_BYTE_BITMASK = 0xffffffff;
+var FOUR_BYTE_HIGH_1_BITMASK = 0x80000000;
 var ONE_BYTE_BITMASK = 0xff;
 var ONE_BYTE_HIGH_1_BITMASK = 0x80;
 var ONE_BYTE_HIGH_3_BITMASK = 0xe0;
@@ -57,8 +57,8 @@ var ONE_BYTE_HIGH_3_BITMASK = 0xe0;
 var ONE_BYTE_BIT_LENGTH = 8;
 var TWO_BYTES_BIT_LENGTH = 16;
 
-var MAX_NUMBER_OF_CHARACTERS_FOR_INT64 = 19;
-var MIN_NUMBER_OF_CHARACTERS_FOR_INT64 = 16;
+var MAX_NUM_OF_CHARACTERS_FOR_INT64 = 19;
+var MIN_NUM_OF_CHARACTERS_FOR_INT64 = 16;
 
 Int64Util.toDecimalString = function (i64)
 {
@@ -99,25 +99,25 @@ Int64Util.toDecimalString = function (i64)
         return (negative ? '-' : '') + low;
     }
     // Make it exactly 11 with leading zeros.
-    low = ('00000000000' + String(low % POW10_11)).slice(-NUMBER_OF_LEAST_SIGNIFICANT_DIGITS);
+    low = ('00000000000' + String(low % POW10_11)).slice(-NUM_OF_LEAST_SIGNIFICANT_DIGITS);
     return (negative ? '-' : '') + String(high) + low;
 };
 
 Int64Util.fromDecimalString = function (text)
 {
     var negative = text.charAt(0) === '-';
-    if (text.length < (negative ? MIN_NUMBER_OF_CHARACTERS_FOR_INT64 + 1 : MIN_NUMBER_OF_CHARACTERS_FOR_INT64))
+    if (text.length < (negative ? MIN_NUM_OF_CHARACTERS_FOR_INT64 + 1 : MIN_NUM_OF_CHARACTERS_FOR_INT64))
     {
         // The magnitude is smaller than 2^53.
         return new Int64(+text);
     }
-    else if (text.length > (negative ? MAX_NUMBER_OF_CHARACTERS_FOR_INT64 + 1 : MAX_NUMBER_OF_CHARACTERS_FOR_INT64))
+    else if (text.length > (negative ? MAX_NUM_OF_CHARACTERS_FOR_INT64 + 1 : MAX_NUM_OF_CHARACTERS_FOR_INT64))
     {
         throw new RangeError('too many digits for Int64: ' + text);
     }
     // Most significant (up to 5) digits
-    var high5 = +text.slice(negative ? 1 : 0, -MAX_NUMBER_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE);
-    var low = +text.slice(-MAX_NUMBER_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE) + high5 *
+    var high5 = +text.slice(negative ? 1 : 0, -MAX_NUM_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE);
+    var low = +text.slice(-MAX_NUM_OF_DECIMAL_DIGITS_REPRESENTABLE_BY_DOUBLE) + high5 *
         POW10_15_REMAINDER_POW2_32;
     var high = Math.floor(low / POW2_32) + high5 * POW10_15_OVER_POW2_32;
     low = low % POW2_32;
@@ -131,13 +131,13 @@ Int64Util.fromDecimalString = function (text)
         high = ~high;
         if (low === 0)
         {
-            high = (high + 1) & FOUR_BYTES_BITMASK;
+            high = (high + 1) & FOUR_BYTE_BITMASK;
         }
         else
         {
             low = ~low + 1;
         }
-        high = FOUR_BYTES_HIGH_1_BITMASK | high;
+        high = FOUR_BYTE_HIGH_1_BITMASK | high;
     }
     return new Int64(high, low);
 };
