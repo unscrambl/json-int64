@@ -133,7 +133,7 @@ var BASE_16 = 16;
         }
         if (isInt64)
         {
-            valueKeys = Object.keys.apply(value).sort();
+            valueKeys = Object.keys(value).sort();
             // Since javascript is duck-typed, we chack the keys of the object
             if (valueKeys.length === Int64Keys.length)
             {
