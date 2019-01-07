@@ -1,4 +1,3 @@
-var Int64 = require('node-int64');
 var Int64Util = require('./int64_util.js');
 
 /*
@@ -124,7 +123,35 @@ var BASE_16 = 16;
         var mind = gap;
         var partial;
         var value = holder[key];
-        var isInt64 = value !== null && value instanceof Int64;
+        var isInt64 = true;
+        var Int64Keys = ["buffer", "offset"];
+        var Int64Types = [Uint8Array, Number];
+        var valueKeys = [];
+
+        if (value !== null && value !== undefined)
+        {
+            valueKeys = Object.keys(value).sort();
+            // Since javascript is duck-typed, we check the keys of the object and their types. Built-in types are ok.
+            if (valueKeys.length === Int64Keys.length)
+            {
+                for (var it = 0; isInt64 && it < valueKeys.length; ++it)
+                {
+                    if ((valueKeys[it] !== Int64Keys[it]) || (!value[valueKeys[it]] instanceof Int64Types[it]))
+                    {
+                        isInt64 = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                isInt64 = false;
+            }
+        }
+        else
+        {
+            isInt64 = false;
+        }
 
         // If the value has a toJSON method, call it to obtain a replacement value.
 
