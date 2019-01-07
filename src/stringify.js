@@ -125,16 +125,13 @@ var BASE_16 = 16;
         var value = holder[key];
         var isInt64 = true;
         var Int64Keys = ["buffer", "offset"];
+        var Int64Types = [Uint8Array, Number];
         var valueKeys = [];
 
-        if (value === null || value === undefined)
-        {
-            isInt64 = false;
-        }
-        if (isInt64)
+        if (value !== null && value !== undefined)
         {
             valueKeys = Object.keys(value).sort();
-            // Since javascript is duck-typed, we chack the keys of the object
+            // Since javascript is duck-typed, we check the keys of the object and their types. Built-in types are ok.
             if (valueKeys.length === Int64Keys.length)
             {
                 for (var it = 0; isInt64 && it < valueKeys.length; ++it)
@@ -142,6 +139,12 @@ var BASE_16 = 16;
                     if (valueKeys[it] !== Int64Keys[it])
                     {
                         isInt64 = false;
+                        break;
+                    }
+                    if (!value[valueKeys[it]] instanceof Int64Types[it])
+                    {
+                        isInt64 = false;
+                        break;
                     }
                 }
             }
@@ -149,6 +152,10 @@ var BASE_16 = 16;
             {
                 isInt64 = false;
             }
+        }
+        else
+        {
+            isInt64 = false;
         }
 
         // If the value has a toJSON method, call it to obtain a replacement value.
