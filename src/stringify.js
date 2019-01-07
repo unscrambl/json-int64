@@ -136,12 +136,7 @@ var BASE_16 = 16;
             {
                 for (var it = 0; isInt64 && it < valueKeys.length; ++it)
                 {
-                    if (valueKeys[it] !== Int64Keys[it])
-                    {
-                        isInt64 = false;
-                        break;
-                    }
-                    if (!value[valueKeys[it]] instanceof Int64Types[it])
+                    if ((valueKeys[it] !== Int64Keys[it]) || (!value[valueKeys[it]] instanceof Int64Types[it]))
                     {
                         isInt64 = false;
                         break;
