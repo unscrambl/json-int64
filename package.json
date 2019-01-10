@@ -9,7 +9,7 @@
         "mocha": "5.1.1"
     },
     "files": [
-        "./src/"
+        "src/"
     ],
     "keywords": [
         "JSON",
@@ -25,5 +25,5 @@
     "scripts": {
         "test": "./node_modules/mocha/bin/mocha -R spec --check-leaks test/*.spec.js"
     },
-    "version": "0.0.2"
+    "version": "1.0.0"
 }

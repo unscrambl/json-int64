@@ -66,4 +66,22 @@ describe("Tests the Int64 support", function ()
 
         done();
     });
+
+    it("tests that Int64 objects are recognized even when 'instanceof Int64' returns false", function (done)
+    {
+        var maxSignedInt64DecimalString = "9223372036854775807";
+        var maxSignedInt64DecimalInt64 = new Int64("7fffffffffffffff");
+        var byteArray = new Uint8Array([0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
+        var offset = 0;
+
+        var int64Like = {buffer: byteArray, offset: offset};
+
+        expect(int64Like instanceof Int64).to.be.false;
+        expect(JSONInt64.stringify(int64Like)).to.be.equal(maxSignedInt64DecimalString);
+        expect(JSONInt64.parse(JSONInt64.stringify(int64Like))).to.be.equalInt64(maxSignedInt64DecimalInt64);
+
+        var nonInt64Like1 = {buffer: byteArray, offset: "0"};
+        expect(JSONInt64.stringify(nonInt64Like1)).to.be.not.equal(maxSignedInt64DecimalString);
+        done();
+    });
 });

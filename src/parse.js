@@ -1,3 +1,5 @@
+var constants = require('./constants.js');
+
 /*
     json_parse.js
     2012-06-20
@@ -256,7 +258,7 @@ var json_parse = function ()
                             }
                             string += String.fromCharCode(uffff);
                         }
-                        else if (typeof escapee[ch] === 'string')
+                        else if (typeof escapee[ch] === constants.STRING_TYPE)
                         {
                             string += escapee[ch];
                         }
@@ -355,11 +357,11 @@ var json_parse = function ()
         // reviver function for possible transformation, starting with a temporary root object that holds the result
         // in an empty key. If there is not a reviver function, we simply return the result.
 
-        return typeof reviver === 'function' ?
+        return typeof reviver === constants.FUNCTION_TYPE ?
             (function walk(holder, key)
             {
                 var v, value = holder[key];
-                if (value && typeof value === 'object')
+                if (value && typeof value === constants.OBJECT_TYPE)
                 {
                     Object.keys(value).forEach(function (k)
                     {

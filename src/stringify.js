@@ -1,4 +1,5 @@
 var Int64Util = require('./int64_util.js');
+var constants = require('./constants.js');
 
 /*
     json2.js
@@ -75,6 +76,29 @@ var JSON = module.exports;
 
 var BASE_16 = 16;
 
+const INT64_OBJECT_KEYS_2_TYPE_CHECKER = {
+    buffer: (T) => T instanceof Uint8Array,
+    offset: (T) => typeof T === 'number'
+};
+const INT64_KEYS = ["buffer", "offset"];
+
+const ARRAY_REPRESENTATION = "[object Array]";
+const NULL = "null";
+
+const UNICODE_PADDING = "0000";
+const UNICODE_LENGTH = 4;
+
+const SUBSTITUTION_TABLE = {
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '"': '\\"',
+    '\\': '\\\\'
+};
+
+
 (function ()
 {
     'use strict';
@@ -83,16 +107,7 @@ var BASE_16 = 16;
         /[\\"\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
         gap,
         indent,
-        meta = { // table of character substitutions
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '"': '\\"',
-            '\\': '\\\\'
-        },
-        rep;
+        replacer;
 
 
     function quote(string)
@@ -104,10 +119,10 @@ var BASE_16 = 16;
         escapable.lastIndex = 0;
         return escapable.test(string) ? '"' + string.replace(escapable, function (a)
         {
-            var c = meta[a];
-            return typeof c === 'string' ?
+            var c = SUBSTITUTION_TABLE[a];
+            return typeof c === constnts.STRING_TYPE ?
                 c :
-                '\\u' + ('0000' + a.charCodeAt(0).toString(BASE_16)).slice(-4);
+                '\\u' + (UNICODE_PADDING + a.charCodeAt(0).toString(BASE_16)).slice(-UNICODE_LENGTH);
         }) + '"' : '"' + string + '"';
     }
 
@@ -124,64 +139,59 @@ var BASE_16 = 16;
         var partial;
         var value = holder[key];
         var isInt64 = true;
-        var Int64Keys = ["buffer", "offset"];
-        var Int64Types = [Uint8Array, Number];
-        var valueKeys = [];
 
         if (value !== null && value !== undefined)
         {
-            valueKeys = Object.keys(value).sort();
+            var valueKeys = Object.keys(value).sort();
             // Since javascript is duck-typed, we check the keys of the object and their types. Built-in types are ok.
-            if (valueKeys.length === Int64Keys.length)
+            if (valueKeys.length === INT64_KEYS.length)
             {
                 for (var it = 0; isInt64 && it < valueKeys.length; ++it)
                 {
-                    if ((valueKeys[it] !== Int64Keys[it]) || (!value[valueKeys[it]] instanceof Int64Types[it]))
+                    if ((valueKeys[it] !== INT64_KEYS[it]) ||
+                        !INT64_OBJECT_KEYS_2_TYPE_CHECKER[valueKeys[it]](value[valueKeys[it]]))
                     {
                         isInt64 = false;
                         break;
                     }
                 }
+                if (isInt64)
+                {
+                    // We have an Int64 object in our hands.
+                    return Int64Util.toDecimalString(value);
+                }
             }
-            else
-            {
-                isInt64 = false;
-            }
-        }
-        else
-        {
-            isInt64 = false;
         }
 
         // If the value has a toJSON method, call it to obtain a replacement value.
 
-        if (value && typeof value === 'object' && typeof value.toJSON === 'function')
+        if (value && typeof value === constants.OBJECT_TYPE && typeof value.toJSON === constants.FUNCTION_TYPE)
         {
             value = value.toJSON(key);
         }
 
         // If we were called with a replacer function, then call the replacer to obtain a replacement value.
 
-        if (typeof rep === 'function')
+        if (typeof replacer === constants.FUNCTION_TYPE)
         {
-            value = rep.call(holder, key, value);
+            value = replacer.call(holder, key, value);
         }
 
         // What happens next depends on the value's type.
 
         switch (typeof value)
         {
-        case 'string':
+        case constants.STRING_TYPE:
             return quote(value);
 
-        case 'number':
+        case constants.NUMBER_TYPE:
 
             // JSON numbers must be finite. Encode non-finite numbers as null.
 
-            return isFinite(value) ? String(value) : 'null';
+            return isFinite(value) ? String(value) : NULL;
 
-        case 'boolean':
-        case 'null':
+        case constants.BOOLEAN_TYPE:
+        case constants.NULL_TYPE:
 
             // If the value is a boolean or null, convert it to a string. Note: typeof null does not produce 'null'.
             // The case is included here in the remote chance that this gets fixed someday.
@@ -190,18 +200,13 @@ var BASE_16 = 16;
 
             // If the type is 'object', we might be dealing with an object or an array or null.
 
-        case 'object':
+        case constants.OBJECT_TYPE:
 
             // Due to a specification blunder in ECMAScript, typeof null is 'object', so watch out for that case.
 
             if (!value)
             {
-                return 'null';
-            }
-
-            if (isInt64)
-            {
-                return Int64Util.toDecimalString(value);
+                return NULL;
             }
 
             // Make an array to hold the partial results of stringifying this object value.
@@ -211,14 +216,14 @@ var BASE_16 = 16;
 
             // Is the value an array?
 
-            if (Object.prototype.toString.apply(value) === '[object Array]')
+            if (Object.prototype.toString.apply(value) === ARRAY_REPRESENTATION)
             {
                 // The value is an array. Stringify every element. Use null as a placeholder for non-JSON values.
 
                 length = value.length;
                 for (i = 0; i < length; i += 1)
                 {
-                    partial[i] = str(i, value) || 'null';
+                    partial[i] = str(i, value) || NULL;
                 }
 
                 // Join all of the elements together, separated with commas, and wrap them in brackets.
@@ -234,14 +239,14 @@ var BASE_16 = 16;
 
             // If the replacer is an array, use it to select the members to be stringified.
 
-            if (rep && typeof rep === 'object')
+            if (replacer && typeof replacer === constants.OBJECT_TYPE)
             {
-                length = rep.length;
+                length = replacer.length;
                 for (i = 0; i < length; i += 1)
                 {
-                    if (typeof rep[i] === 'string')
+                    if (typeof replacer[i] === constants.STRING_TYPE)
                     {
-                        k = rep[i];
+                        k = replacer[i];
                         v = str(k, value);
                         if (v)
                         {
@@ -278,7 +283,7 @@ var BASE_16 = 16;
 
     // If the JSON object does not yet have a stringify method, give it one.
 
-    if (typeof JSON.stringify !== 'function')
+    if (typeof JSON.stringify !== constants.FUNCTION_TYPE)
     {
         JSON.stringify = function (value, replacer, space)
         {
@@ -293,7 +298,7 @@ var BASE_16 = 16;
 
             // If the space parameter is a number, make an indent string containing that many spaces.
 
-            if (typeof space === 'number')
+            if (typeof space === constants.NUMBER_TYPE)
             {
                 for (i = 0; i < space; i += 1)
                 {
@@ -303,16 +308,15 @@ var BASE_16 = 16;
                 // If the space parameter is a string, it will be used as the indent string.
 
             }
-            else if (typeof space === 'string')
+            else if (typeof space === constants.STRING_TYPE)
             {
                 indent = space;
             }
 
             // If there is a replacer, it must be a function or an array. Otherwise, throw an error.
 
-            rep = replacer;
-            if (replacer && typeof replacer !== 'function' &&
-                (typeof replacer !== 'object' || typeof replacer.length !== 'number'))
+            if (replacer && typeof replacer !== constants.FUNCTION_TYPE &&
+                (typeof replacer !== constants.OBJECT_TYPE || typeof replacer.length !== constants.NUMBER_TYPE))
             {
                 throw new Error('the type of the replacer must be a function or an array, found ' + typeof replacer);
             }
