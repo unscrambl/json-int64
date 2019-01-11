@@ -60,6 +60,8 @@ var TWO_BYTES_BIT_LENGTH = 16;
 var MAX_NUM_OF_CHARACTERS_FOR_INT64 = 19;
 var MIN_NUM_OF_CHARACTERS_FOR_INT64 = 16;
 
+var ZERO_PADDING = '00000000000';
+
 Int64Util.toDecimalString = function (i64)
 {
     var i64Buffer = i64.buffer;
@@ -99,7 +101,7 @@ Int64Util.toDecimalString = function (i64)
         return (negative ? '-' : '') + low;
     }
     // Make it exactly 11 with leading zeros.
-    low = ('00000000000' + String(low % POW10_11)).slice(-NUM_OF_LEAST_SIGNIFICANT_DIGITS);
+    low = (ZERO_PADDING + String(low % POW10_11)).slice(-NUM_OF_LEAST_SIGNIFICANT_DIGITS);
     return (negative ? '-' : '') + String(high) + low;
 };
 
