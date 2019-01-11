@@ -88,7 +88,7 @@ const NULL = "null";
 const UNICODE_PADDING = "0000";
 const UNICODE_LENGTH = 4;
 
-const SUBSTITUTION_TABLE = {
+const CHARACTER_2_ESCAPED_CHARACTER = {
     '\b': '\\b',
     '\t': '\\t',
     '\n': '\\n',
@@ -119,8 +119,8 @@ const SUBSTITUTION_TABLE = {
         escapable.lastIndex = 0;
         return escapable.test(string) ? '"' + string.replace(escapable, function (a)
         {
-            var c = SUBSTITUTION_TABLE[a];
-            return typeof c === constnts.STRING_TYPE ?
+            var c = CHARACTER_2_ESCAPED_CHARACTER[a];
+            return typeof c === constants.STRING_TYPE ?
                 c :
                 '\\u' + (UNICODE_PADDING + a.charCodeAt(0).toString(BASE_16)).slice(-UNICODE_LENGTH);
         }) + '"' : '"' + string + '"';

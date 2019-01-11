@@ -1,5 +1,7 @@
-var expect = require('chai').expect;
-var Assertion = require('chai').Assertion;
+var chai = require('chai');
+var Assertion = chai.Assertion;
+var assert = chai.assert;
+var expect = chai.expect;
 var Int64 = require('node-int64');
 var JSONInt64 = require('../index');
 
@@ -80,8 +82,115 @@ describe("Tests the Int64 support", function ()
         expect(JSONInt64.stringify(int64Like)).to.be.equal(maxSignedInt64DecimalString);
         expect(JSONInt64.parse(JSONInt64.stringify(int64Like))).to.be.equalInt64(maxSignedInt64DecimalInt64);
 
-        var nonInt64Like1 = {buffer: byteArray, offset: "0"};
-        expect(JSONInt64.stringify(nonInt64Like1)).to.be.not.equal(maxSignedInt64DecimalString);
+        var nonInt64Like = {buffer: byteArray, offset: "0"};
+        expect(JSONInt64.stringify(nonInt64Like)).to.be.not.equal(maxSignedInt64DecimalString);
+        done();
+    });
+
+    it("tests that complex objects are correctly stringified and parsed", function (done)
+    {
+        var complexObject = {
+            a: ["foo", "\"", new Int64("7fffffffffffffff"), "    "],
+            "b": {
+                "0": [0, 1 , 2],
+                "1": {
+                    buffer: new Uint8Array([0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]),
+                    offset: 0
+                },
+                "\\": {
+                    buffer: [0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+                    offset: 0
+                },
+                "\\\\": {
+                    buffer: new Uint8Array([0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]),
+                    offset: "0"
+                }
+            },
+            "null": null,
+            "true": true,
+            "false": false,
+            pi: 3.14,
+            scientific: 1.2e+23
+        };
+
+        var complexObjectAsString = String.raw`{"a":["foo","\"",9223372036854775807,"    "],"b":{"0":[0,1,2],` +
+            String.raw`"1":9223372036854775807,"\\":{"buffer":[127,255,255,255,255,255,255,255],"offset":0},` +
+            String.raw`"\\\\":{"buffer":{"0":127,"1":255,"2":255,"3":255,"4":255,"5":255,"6":255,"7":255},` +
+            String.raw`"offset":"0"}},"null":null,"true":true,"false":false,"pi":3.14,"scientific":1.2e+23}`;
+
+        var complexObjectAfterParse = {
+            a: ["foo", "\"", new Int64("7fffffffffffffff"), "    "],
+            b: {
+                "0": [0, 1, 2],
+                "1": new Int64("7fffffffffffffff"),
+                "\\": {
+                    buffer: [0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+                    offset: 0
+                },
+                "\\\\": {
+                    buffer: {"0": 0x7f, "1": 0xff, "2": 0xff, "3": 0xff, "4": 0xff, "5": 0xff, "6": 0xff, "7": 0xff},
+                    offset: "0"
+                }
+            },
+            "null": null,
+            "true": true,
+            "false": false,
+            pi: 3.14,
+            scientific: 1.2e+23
+        }
+
+        expect(JSONInt64.stringify(complexObject)).to.be.equal(complexObjectAsString);
+        expect(JSONInt64.parse(complexObjectAsString)).to.be.deep.equal(complexObjectAfterParse);
+
+        done();
+    });
+
+    it("tests that fromDecimalString throws error for too long and too big strings", function (done)
+    {
+        var tooBigNumber = "9223372036854775809";
+        var tooManyDigits = "92233720368547758090000"
+
+        assert.throw(
+            () => JSONInt64.fromDecimalString(tooManyDigits),
+            RangeError,
+            "too many digits for Int64: " + tooManyDigits);
+        assert.throw(
+            () => JSONInt64.fromDecimalString(tooBigNumber), RangeError, "the magnitude is too large for Int64");
+        done();
+    });
+
+    it("tests that parse catches the syntax errors", function (done)
+    {
+        var faultyStrings = [
+            ["{", "bad object", 2],
+            [String.raw`{"a":1.3e}`, "bad number", 10],
+            [String.raw`{"a":[1,2}`, "expected ',' instead of '}'", 10],
+            [String.raw`{"a":[1,2,}`, "unexpected '}'", 11],
+            [String.raw`{"a":"foo}`, "bad string", 11],
+            [String.raw`{"a":0,"a":1}`, "duplicate key \"a\"", 12],
+            [String.raw`{"null": nul}`, "expected 'l' instead of '}'", 13]
+
+        ];
+
+        faultyStrings.forEach(function (faultyStringAndErrorMessageAndPosition)
+        {
+            var expectedError = {
+                at: faultyStringAndErrorMessageAndPosition[2],
+                message: faultyStringAndErrorMessageAndPosition[1],
+                name: 'SyntaxError',
+                text: faultyStringAndErrorMessageAndPosition[0]
+            };
+            try
+            {
+                JSONInt64.parse(faultyStringAndErrorMessageAndPosition[0]);
+                assert(false, "this should not happen");
+            }
+            catch (error)
+            {
+                expect(error).to.be.deep.equal(expectedError);
+            }
+        });
+
         done();
     });
 });
