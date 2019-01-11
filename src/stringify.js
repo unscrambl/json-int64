@@ -316,7 +316,8 @@ const CHARACTER_2_ESCAPED_CHARACTER = {
             // If there is a replacer, it must be a function or an array. Otherwise, throw an error.
 
             if (replacer && typeof replacer !== constants.FUNCTION_TYPE &&
-                (typeof replacer !== constants.OBJECT_TYPE || typeof replacer.length !== constants.NUMBER_TYPE))
+                (typeof replacer !== constants.OBJECT_TYPE || typeof replacer.length !== constants.NUMBER_TYPE)
+            )
             {
                 throw new Error('the type of the replacer must be a function or an array, found ' + typeof replacer);
             }
