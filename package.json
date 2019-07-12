@@ -7,7 +7,7 @@
     "devDependencies": {
         "chai": "4.1.2",
         "mocha": "5.1.1",
-        "nyc": "^13.1.0"
+        "nyc": "^14.1.1"
     },
     "files": [
         "src/"
@@ -26,5 +26,5 @@
     "scripts": {
         "test": "nyc mocha -R spec --check-leaks test/*.spec.js --timeout=5000"
     },
-    "version": "1.0.0"
+    "version": "1.0.1"
 }
