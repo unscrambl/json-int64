@@ -26,5 +26,5 @@
     "scripts": {
         "test": "nyc mocha -R spec --check-leaks test/*.spec.js --timeout=5000"
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
