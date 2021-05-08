@@ -5,9 +5,9 @@
     },
     "description": "JSON.parse / JSON.stringify with int64 support",
     "devDependencies": {
-        "chai": "4.1.2",
-        "mocha": "5.1.1",
-        "nyc": "^14.1.1"
+        "chai": "4.3.4",
+        "mocha": "8.4.0",
+        "nyc": "15.1.0"
     },
     "files": [
         "src/"
@@ -15,8 +15,8 @@
     "keywords": [
         "JSON",
         "int64",
-        "parse",
         "json",
+        "parse",
         "stringify"
     ],
     "license": "Apache-2.0",
@@ -26,5 +26,5 @@
     "scripts": {
         "test": "nyc mocha -R spec --check-leaks test/*.spec.js --timeout=5000"
     },
-    "version": "1.0.2"
+    "version": "1.0.3"
 }
